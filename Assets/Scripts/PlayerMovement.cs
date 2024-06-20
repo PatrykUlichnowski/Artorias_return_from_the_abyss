@@ -7,11 +7,12 @@ public class NewBehaviourScript : MonoBehaviour
     private Rigidbody2D body;
     //SerializeField is used so that you can operate on the variable from Unity 
     [SerializeField] private float speed;
-    private Animator animation;
+    private Animator anim;
+    private bool grounded = true;
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
-        animation = GetComponent<Animator>();
+        anim = GetComponent<Animator>();
     }
     // Update is called once per frame
     void Update()
@@ -21,9 +22,9 @@ public class NewBehaviourScript : MonoBehaviour
         body.velocity = new Vector2(horizontalInput * speed, body.velocity.y);
 
         //jumping
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space) && grounded)
         {
-            body.velocity = new Vector2(body.velocity.x, speed);
+            Jump();
         }
 
         // fliping character sprite left and right as player moves
@@ -37,12 +38,25 @@ public class NewBehaviourScript : MonoBehaviour
         }
 
         //setting up animations
-        animation.SetBool("Run", horizontalInput != 0);
-        //test
+        anim.SetBool("Run", horizontalInput != 0);
+        anim.SetBool("Grounded", grounded);
     }
     // Start is called before the first frame update
     void Start()
     {
         
     } 
+    private void Jump()
+    {
+        body.velocity = new Vector2(body.velocity.x, speed);
+        anim.SetTrigger("Jump");
+        grounded = false;
+    }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+            grounded = true;
+        }
+    }
 }
