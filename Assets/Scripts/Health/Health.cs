@@ -7,10 +7,10 @@ public class Health : MonoBehaviour
 {
     [Header("Healt")] //header for unity UI
     [SerializeField] private float startingHealth;
-     
+
     public float currentHealth { get; private set; }/* get;private set ==== you can fetch (get) the value of the variable to another class,
     but you can only set it within this class */
-    private Animator anim;
+    private Animator animator;
     private bool dead;
 
     [Header("iFrames")]
@@ -28,7 +28,7 @@ public class Health : MonoBehaviour
     private void Awake()
     {
         currentHealth = startingHealth;
-        anim = GetComponent<Animator>();
+        animator = GetComponent<Animator>();
         spriteRend = GetComponent<SpriteRenderer>();
     }
 
@@ -38,25 +38,25 @@ public class Health : MonoBehaviour
 
         if (currentHealth > 0)
         {
-            anim.SetTrigger("Hurt");
+            animator.SetTrigger("Hurt");
             //print("damage");
             StartCoroutine(Invunerability());
             SoundManager.instance.PlaySound(hurtSound);
 
         }
-        else 
+        else
         {
             //when player has died
             if (!dead)
             {
-                    
+
                 //deactivate all objects that are attached
                 foreach (Behaviour component in components)
                 {
                     component.enabled = false;
                 }
-                anim.SetBool("Grounded", true);
-                anim.SetTrigger("Death");
+                animator.SetBool("Grounded", true);
+                animator.SetTrigger("Death");
 
                 dead = true;
                 SoundManager.instance.PlaySound(deathSound);
@@ -64,7 +64,7 @@ public class Health : MonoBehaviour
         }
     }
 
-    public void AddHealt (float _value)
+    public void AddHealt(float _value)
     {
         currentHealth = Mathf.Clamp(currentHealth + _value, 0, startingHealth);
     }
@@ -77,11 +77,23 @@ public class Health : MonoBehaviour
             yield return new WaitForSeconds(iFramesDuration / (numberOfFlashes * 2)); // multiple by two cause we have 2 delays. one here
             spriteRend.color = Color.white;
             yield return new WaitForSeconds(iFramesDuration / (numberOfFlashes * 2)); // and one here
-        }   
-        Physics2D.IgnoreLayerCollision(10, 11, false); 
+        }
+        Physics2D.IgnoreLayerCollision(10, 11, false);
     }
     private void Deactivate()
     {
         gameObject.SetActive(false);
+    }
+    public void Respawn()
+    {
+        dead = false;
+        AddHealt(startingHealth);
+        animator.ResetTrigger("Death");
+        animator.Play("Idle");
+        StartCoroutine(Invunerability()); // player gets extra iframes after respawinig
+        foreach (Behaviour component in components)
+        {
+            component.enabled = true;
+        }
     }
 }
