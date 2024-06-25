@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,11 +11,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] private AudioClip gameOverSound;
     [Header("pause")]
     [SerializeField] private GameObject pauseScreen;
+    [SerializeField] private GameObject winScreen;
+
+    private bool playerWon;
 
     private void Awake()
     {
+        PauseGame(false);
         gameOverScreen.SetActive(false);
         pauseScreen.SetActive(false);
+        winScreen.SetActive(false);
     }
 
     private void Update()
@@ -26,6 +32,8 @@ public class UIManager : MonoBehaviour
             else
                 PauseGame(true);
         }
+        if ((Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetKeyDown(KeyCode.Return)) && playerWon)
+               Restart();
     }
 
     public void GameOver()
@@ -52,7 +60,6 @@ public class UIManager : MonoBehaviour
     #endif
     }
 
-
     public void PauseGame(bool _status)
     {
         pauseScreen.SetActive(_status);
@@ -61,6 +68,13 @@ public class UIManager : MonoBehaviour
             Time.timeScale = 0;
         else
             Time.timeScale = 1;
+    }
+
+    public void Win()
+    {
+        playerWon = true;
+        Time.timeScale = 0;
+        winScreen.SetActive(true);
     }
 
 }
